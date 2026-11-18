@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="en">
   <!-- Meta Pixel Code -->
+<!-- Meta Pixel: base code + Lead tracking -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -10,12 +11,48 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window, document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
-fbq('init', '1306368621421882');
+
+fbq('init', 'YOUR_PIXEL_ID');
 fbq('track', 'PageView');
+
+// Fires Lead once per 30 seconds, so a form submit followed by a
+// thank-you page redirect doesn't count the same lead twice.
+function trackLead(source) {
+  try {
+    var last = Number(sessionStorage.getItem('lead_ts') || 0);
+    if (Date.now() - last < 30000) return;
+    sessionStorage.setItem('lead_ts', Date.now());
+  } catch (e) {}
+  fbq('track', 'Lead', { content_name: source });
+}
+
+// 1) Thank-you page (URL contains "thank", e.g. /thank-you.html)
+if (/thank/i.test(location.pathname)) {
+  trackLead('thank_you_page');
+}
+
+// 2) Any form submission on the site
+document.addEventListener('submit', function (e) {
+  trackLead('form_submit');
+}, true);
+
+// 3) WhatsApp, phone call and email link clicks
+document.addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a[href]');
+  if (!a) return;
+  var href = a.getAttribute('href').toLowerCase();
+  if (href.indexOf('wa.me') > -1 || href.indexOf('whatsapp.com') > -1) {
+    trackLead('whatsapp_click');
+  } else if (href.indexOf('tel:') === 0) {
+    trackLead('call_click');
+  } else if (href.indexOf('mailto:') === 0) {
+    trackLead('email_click');
+  }
+}, true);
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=YOUR_PIXEL_ID&ev=PageView&noscript=1"/></noscript>
-<!-- End Meta Pixel Code -->
+<!-- End Meta Pixel -->
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
