@@ -1,7 +1,4 @@
-<!doctype html>
-<html lang="en">
-  <!-- Meta Pixel Code -->
-<!-- Meta Pixel: base code + Lead tracking -->
+<!-- Meta Pixel: base code + event tracking -->
 <script>
 !function(f,b,e,v,n,t,s)
 {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -36,23 +33,34 @@ document.addEventListener('submit', function (e) {
   trackLead('form_submit');
 }, true);
 
-// 3) WhatsApp, phone call and email link clicks
+// 4) Click tracking: WhatsApp, cal.com, phone, email, instant form
 document.addEventListener('click', function (e) {
   var a = e.target.closest && e.target.closest('a[href]');
   if (!a) return;
   var href = a.getAttribute('href').toLowerCase();
+
   if (href.indexOf('wa.me') > -1 || href.indexOf('whatsapp.com') > -1) {
+    fbq('track', 'Contact', { content_name: 'whatsapp_click' });
     trackLead('whatsapp_click');
+  } else if (href.indexOf('cal.com') > -1) {
+    fbq('track', 'Contact', { content_name: 'booking_click' });
+    trackLead('booking_click');
   } else if (href.indexOf('tel:') === 0) {
     trackLead('call_click');
   } else if (href.indexOf('mailto:') === 0) {
     trackLead('email_click');
+  } else if (href.indexOf('facebook.com') > -1 || href.indexOf('fb.me') > -1) {
+    // Instant Form button/link
+    fbq('track', 'SubmitApplication', { content_name: 'instant_form_click' });
   }
 }, true);
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=1306368621421882&ev=PageView&noscript=1"/></noscript>
 <!-- End Meta Pixel -->
+
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
